@@ -139,9 +139,9 @@ dmypy.json
 cython_debug/
 
 # Large Files
-Inputs/
-viralDB/
-Outputs/
+Inputs
+Outputs
+viralDB/genomes
 
 # Prompt
 CPBS_Day3_2022.docx
