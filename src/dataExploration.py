@@ -15,6 +15,7 @@ def getReads(readF):
 
     with open(readF, 'r') as f:
         lines = f.readlines()
+    print(len(lines))
 
     count = 0
     for line in lines:
@@ -25,8 +26,8 @@ def getReads(readF):
             count +=1
         if line.startswith('@'):
             next = True
-        if count == 3000000:
-            break
+        #if count == 3000000:
+        #    break
     return reads
 
 # get reads from file
@@ -48,6 +49,6 @@ def getViralDB(readF):
             next = False
         if line.startswith('>'):
             next = True
-            label = line
+            label = line.strip('>')
 
     return reads

@@ -7,7 +7,7 @@ import numpy as np
 # align one sequence to another
 def globalAlign(vSeq, refSeq):
     # match, mismatch, indel
-    scorM = [1,-1, -4]
+    scorM = [3,-2, -4]
     # rows, columns
     alignM = np.zeros((len(vSeq), len(refSeq)))
 

@@ -1,4 +1,5 @@
 import gzip, shutil
+import pandas as pd
 
 def extract(zipF, unzipF):
     with gzip.open(zipF, 'rb') as f_in:
@@ -9,7 +10,6 @@ def extract(zipF, unzipF):
 
 
 def getkmers(vDB, kLen):
-
     kmers = {}
 
     for v in vDB:
@@ -22,8 +22,18 @@ def getkmers(vDB, kLen):
                 kmers[k].append(v)
             else: kmers[k] = [v]
     print(len(kmers))
-    #print(sorted(kmers.items(), key=lambda item: item[1], reverse=False)[:10])
-
     return kmers
 
 
+def getViralHosts():
+    vFile = 'viralDB/taxid10239.tbl'
+    #vFile = 'viralDB/taxid10239.nbr'
+    hostDB = pd.read_table(vFile, comment='#', delimiter='\t')
+    print(hostDB)
+    print(hostDB['Accession'])
+    print(hostDB.columns)
+    #hostDB = pd.read_table(vFile, comment='##', delimiter='\t')
+    return hostDB
+
+
+getViralHosts()
