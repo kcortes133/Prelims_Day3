@@ -3,7 +3,7 @@ import sys, time, random, argparse, csv
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from src import dataExploration, database, alignment
+from src import dataExploration, database, alignment, plotGenerator
 
 from collections import Counter
 
@@ -69,14 +69,14 @@ if kmerBinning:
     virusesFound = {}
     print(len(top))
     for t in top:
-        top3VG = sorted(totHits[t].items(), key=lambda item:item[1], reverse=True)[:3]
+        top5VG = sorted(totHits[t].items(), key=lambda item:item[1], reverse=True)[:5]
         allVG = list(totHits[t].items())
         maxS = 0
         match = ''
         # TODO: align all not just top 3
-        for a in range(len(allVG)):
-            viralGenomeName = allVG[t][a][0]
-            genomeHits = allVG[t][a][1]
+        for a in range(len(top5VG)):
+            viralGenomeName = top5VG[a][0]
+            genomeHits = top5VG[a][1]
             score = alignment.globalAlign(reads[t], vGDB[viralGenomeName])
             maxS = max(maxS, score)
             if maxS == score:
@@ -94,16 +94,13 @@ if kmerBinning:
         for key in virusesFound.keys():
             of.write("%s,%s\n"%(key,virusesFound[key]))
 
+    plotGenerator.pieChart(virusesFound)
+
 
     x = hits.values()
     print(len(list(filter(lambda x: x>4000, sorted(x)))))
     x2 = top.values()
 
-    plt.hist(x)
-    plt.show()
-
-    plt.hist(x2)
-    plt.show()
     # TODO: check covid in viral genomicd db, look at length of top viruses & genomes
     # TODO: make pie chart, nested pie chart????
     # TODO: host chart, virus chart, taxonomy information

@@ -26,14 +26,17 @@ def getkmers(vDB, kLen):
 
 
 def getViralHosts():
-    vFile = 'viralDB/taxid10239.tbl'
-    #vFile = 'viralDB/taxid10239.nbr'
-    hostDB = pd.read_table(vFile, comment='#', delimiter='\t')
-    print(hostDB)
-    print(hostDB['Accession'])
-    print(hostDB.columns)
-    #hostDB = pd.read_table(vFile, comment='##', delimiter='\t')
+    vFile = 'viralDB/taxid10239.nbr'
+    hostDB = pd.read_table(vFile, comment='#', delimiter='\t', names=["Representative","Neighbor","Host","Selected lineage","Taxonomy name","Segment name"])
+    hostDB = hostDB[['Representative', 'Host']]
     return hostDB
+
+def getViralInfoDB():
+    vFile = 'viralDB/virushostdb.tsv'
+    vDB = pd.read_table(vFile, delimiter='\t')
+    print(vDB)
+    return vDB
 
 
 getViralHosts()
+getViralInfoDB()
