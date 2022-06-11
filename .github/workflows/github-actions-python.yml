@@ -1,7 +1,5 @@
 name: py
-on:
-  push:
-    branches: [master]
+on: [push]
 
 jobs:
   build:
