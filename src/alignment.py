@@ -1,4 +1,9 @@
+# Author: Katherina Cortes
+# Date: June 10, 2022
+# Purpose:
+
 import numpy as np
+
 
 
 # mismatch penalty of -1
@@ -68,9 +73,3 @@ def localAlign(vSeq, refSeq):
             alignM[i][j] = max(alignM[i-1][j]+scorM[2], alignM[i][j-1]+scorM[2], alignM[i-1][j-1] + match, 0)
 
     return alignM.max()
-
-s1 = 'cat'
-s2 = 'ccatb'
-
-#print(globalAlign(s1, s2))
-print(localAlign(s1, s2))

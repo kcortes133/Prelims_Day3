@@ -1,133 +1,126 @@
-import sys, time, random, argparse, csv
+# Author: Katherina Cortes
+# Date: June 8, 2022
+# Purpose:
+
+
+import time, random, argparse, os
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from src import dataExploration, database, alignment, plotGenerator
-
+from src import dataExploration, database, alignment, plotGenerator, kmerBinning, outFiles
 from collections import Counter
+import random
 
 parser = argparse.ArgumentParser(description='')
-parser.add_argument('--unzip-viralDB', metavar='unzipVDB', type=bool, default=False, help='unzip viral genome database')
+parser.add_argument('--kBinning', metavar='kBinning', type=bool, default=False, help='find reads likely to be'
+                                                                                           ' viral and align to viral genomes')
+parser.add_argument('--kLen', metavar='kLen', type=int, default=10, help='length of k for binning')
+parser.add_argument('--align', metavar='align', type=bool, help='align all reads to viral genomes,'
+                                                                ' only use if number of reads is small')
+parser.add_argument('--readsFile', metavar='readsF', type=str, default='Example/Inputs', help='fastq file of reads')
+parser.add_argument('--outputFile', metavar='outputF', type=str, default='Example/Outputs', help='output directory')
+parser.add_argument('--visualize', metavar='visualize', type=bool, default=False, help='')
+parser.add_argument('--viralSampleFile', metavar='vsFile', type=str, default='', help='create figures for already made'
+                                                                                      ' viral community characterization file')
 
 args = parser.parse_args()
 
-annotationFile = 'Outputs/SRR12464727_Annotation.csv'
-testF = 'Inputs/SRR12464727.fastq'
+def main():
+    annotationFile = 'Outputs/SRR12464727_Annotation.csv'
+    testF = 'Inputs/SRR12464727.fastq'
+    run = 'SRR12464727'
+    annotationFile = 'Outputs/SRR12432009_Annotation.csv'
+    testF = 'Inputs/SRR12432009.fastq'
+    run = 'SRR12432009'
 
-#reads = dataExploration.getReads(testF)
-# reads = 39,335,609
-# time to read file -> 221 seconds ~ 3.6 mins
+    # TODO: make small example input and output files
+    # TODO: add input and output arguments
 
+    # unzip viral genome files
+    # will do automatically if genomes file doesnt exist and
+    # 14,858 viral genomes
+    # unzip the viral genomes in compressed folder if not unzipped
+    if not os.path.exists('viralDB/genomes'):
+        os.makedirs('viralDB/genomes')
+        vDir = 'viralDB/compressed/viral.'
+        for i in range(1,5):
+            vfile = vDir + str(i) + '.1.genomic.fna.gz'
+            ovFile = vDir + str(i) + '.genomic.fna'
+            database.extract(vfile, ovFile)
 
-# 14,858 viral genomes
-# TODO: make commands to unzip the ones in compressed folder
-# TODO: make small input files
-viralDB1 = 'viralDB/genomes/viral.1.genomic.fna'
-viralDB2 = 'viralDB/genomes/viral.2.genomic.fna'
-viralDB3 = 'viralDB/genomes/viral.3.genomic.fna'
-viralDB4 = 'viralDB/genomes/viral.4.genomic.fna'
-vGDB = {}
-vGDB.update(dataExploration.getViralDB(viralDB1))
-vGDB.update(dataExploration.getViralDB(viralDB2))
-vGDB.update(dataExploration.getViralDB(viralDB3))
-vGDB.update(dataExploration.getViralDB(viralDB4))
+    vGDB = database.makeVDB()
+    s = time.time()
+    if args.kBinning:
+        kmers = database.getkmers(vGDB, args.kLen)
+        virusOutFile = 'Outputs/virusCount' + run +'_all.csv'
+        s1 = time.time()
+        top = {}
+        totHits = {}
+        hits = {}
+        directory = 'Inputs/' + run + 'reads/'
 
-kLen = 10
-kmers = database.getkmers(vGDB, kLen)
+        #if not os.path.exists(directory):
+        #    dataExploration.readstoFiles(testF, run, 20)
 
-kmerBinning = True
-subset = 0
-s = time.time()
-if kmerBinning:
-    count = 0
-    virusOutFile = 'Outputs/virusCount.csv'
-    reads = dataExploration.getReads(testF)
-    print(len(reads))
-    scores = []
-    print('Time to get reads: ', time.time()-s)
-    s1 = time.time()
-    hits = {}
-    totHits = {}
-    top = {}
-    for r in reads:
-        possibleVGs = []
-        for i in range(kLen, len(r)-kLen):
-            k = r[i: i+kLen]
-            if k in kmers:
-                possibleVGs.extend(kmers[k])
-        hits[count] = len(possibleVGs)
-        if len(possibleVGs) > 4000:
-            top[count] = len(possibleVGs)
-        totHits[count] = Counter(possibleVGs)
-        count +=1
-    print('Time to subset reads: ',time.time()-s1)
-    print('Total time:  ', time.time()-s)
-    s2 = time.time()
-    #top = dict(sorted(hits.items(), key=lambda item: item[1], reverse=True)[:3000])
-    # alignment for reads with most hits for viralGenomes they matched to
-    virusesFound = {}
-    print(len(top))
-    for t in top:
-        top5VG = sorted(totHits[t].items(), key=lambda item:item[1], reverse=True)[:5]
-        allVG = list(totHits[t].items())
-        maxS = 0
-        match = ''
-        # TODO: align all not just top 3
-        for a in range(len(top5VG)):
-            viralGenomeName = top5VG[a][0]
-            genomeHits = top5VG[a][1]
-            score = alignment.globalAlign(reads[t], vGDB[viralGenomeName])
-            maxS = max(maxS, score)
-            if maxS == score:
-                match = viralGenomeName.split(' ')[0]
-                match = match.split('.')[0]
-        if match in virusesFound:
-            virusesFound[match]+=1
-        else:
-            virusesFound[match] = 1
+        virusesFound = {}
+        viralNames = {}
+        reads = dataExploration.getReads(testF)
+        reads = random.sample(reads, int(len(reads)/4))
+        print(time.time() - s)
+        top, totHits, hits = kmerBinning.subsetReads(reads, args.kLen, kmers)
+        print('Time to subset reads: ',time.time()-s1)
+        print(time.time()- s)
+        virusesFound, viralNames = kmerBinning.getVirusMatches(top, totHits, reads, vGDB)
 
-    print('Time to align top reads: ', time.time()-s2)
-    print('Total time elapsed: ', time.time()-s)
-    print(virusesFound)
-    with open(virusOutFile, 'w') as of:
-        for key in virusesFound.keys():
-            of.write("%s,%s\n"%(key,virusesFound[key]))
+        #for fileName in os.listdir(directory):
+        #    f = os.path.join(directory + fileName)
+        #    print(f)
+        #    reads = dataExploration.getReadsinFiles(f)
+        #    topTemp, totHitsTemp, hitsTemp = kmerBinning.subsetReads(reads, args.kLen, kmers)
+        #    top.update(topTemp)
+        #    totHits.update(totHitsTemp)
+        #    hits.update(hitsTemp)
+        #    virusesFoundTemp, viralNamesTemp = kmerBinning.getVirusMatches(top, totHits, reads, vGDB)
 
-    plotGenerator.pieChart(virusesFound)
+        #    virusesFound.update(virusesFoundTemp)
 
+        #    viralNames.update(viralNamesTemp)
+        print('Possible Viruses found: ', len(top))
+        print('Time to subset reads: ',time.time()-s1)
+        print('Total time:  ', time.time()-s)
+        s2 = time.time()
+        # alignment for reads with most hits for viralGenomes they matched to
+        #virusesFound, viralNames = kmerBinning.getVirusMatches()
 
-    x = hits.values()
-    print(len(list(filter(lambda x: x>4000, sorted(x)))))
-    x2 = top.values()
+        print('Time to align top reads: ', time.time()-s2)
+        print('Total time elapsed: ', time.time()-s)
+        viralHostsDB = database.getViralHosts()
 
-    # TODO: check covid in viral genomicd db, look at length of top viruses & genomes
-    # TODO: make pie chart, nested pie chart????
-    # TODO: host chart, virus chart, taxonomy information
-    # TODO: given argument can input already created file
+        outFiles.writeViruses(virusOutFile, virusesFound, viralHostsDB, viralNames)
+        plotGenerator.pieChart(virusesFound)
 
+        # TODO: check covid in viral genomicd db, look at length of top viruses & genomes
+        # TODO: given argument can input already created file
 
+    if args.align:
+        reads = dataExploration.getReads(testF)
+        annotationDF = pd.DataFrame(np.zeros((len(reads), 4)), columns=['GlobalAlignment', 'GA_Score'])
+        annotationDF.to_csv(annotationFile)
+        annotationDF = pd.read_csv(annotationFile)
+        for i in range(15):
+            randI = random.randint(25,len(reads))
+            maxS = -1
+            match = ''
+            for v in vGDB:
+                score = alignment.globalAlign(reads[i], vGDB[v])
+                maxS = max(score, maxS)
+                if maxS == score:
+                    match = v
+            annotationDF.at[randI, 'Global_Alignment'] = match
+            annotationDF.at[randI, 'GA_Score'] = maxS
 
-
-align = False
-if align:
-    reads = dataExploration.getReads(testF)
-    annotationDF = pd.DataFrame(np.zeros((len(reads), 4)), columns=['LocalAlignment', 'LA_Score', 'GlobalAlignment', 'GA_Score' ])
-    annotationDF.to_csv(annotationFile)
-    annotationDF = pd.read_csv(annotationFile)
-    for i in range(15):
-        randI = random.randint(25,len(reads))
-        maxS = -1
-        match = ''
-        for v in vGDB:
-            #score = alignment.globalAlign(reads[i], vGDB[v])
-            score = alignment.localAlign(reads[randI], vGDB[v])
-            maxS = max(score, maxS)
-            if maxS == score:
-                match = v
-        annotationDF.at[randI, 'LocalAlignment'] = match
-        annotationDF.at[randI, 'LA_Score'] = maxS
-        print(randI, match, maxS)
+        annotationDF.to_csv(annotationFile, index=False)
 
 
-    annotationDF.to_csv(annotationFile, index=False)
+main()

@@ -1,13 +1,33 @@
+# Author: Katherina Cortes
+# Date: June 11, 2022
+# Purpose: visualizations of labeled viruses
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 
+def filter(labels):
+    labelsFiltered = {}
+    labels = dict(sorted(labels.items(), key=lambda item: item[1], reverse=True))
+    count = 0
+    for l in labels:
+        print(labels[l])
+        if count < 9:
+            labelsFiltered[l] = int(labels[l])
+        else:
+            if 'Other' in labelsFiltered:
+                labelsFiltered['Other'] += int(labels[l])
+            else: labelsFiltered['Other'] = int(labels[l])
+        count +=1
+    print(labelsFiltered)
+
+    return labelsFiltered
+
+
 def pieChart(labels):
+    # TODO: make low count ones same slice
     viruses = list(labels.keys())
     counts = list(labels.values())
-    print(viruses)
-    print(counts)
-
     fig, ax = plt.subplots(figsize=(6,3), subplot_kw=dict(aspect='equal'))
 
     def func(pct, allvals):
@@ -27,31 +47,17 @@ def pieChart(labels):
 
     ax.set_title("Viruses present in sample")
 
-    #bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
-    #kw = dict(arrowprops=dict(arrowstyle="-"),
-    #          bbox=bbox_props, zorder=0, va="center")
-
-    #for i, p in enumerate(wedges):
-    #    ang = (p.theta2 - p.theta1) / 2. + p.theta1
-    #    y = np.sin(np.deg2rad(ang))
-    #    x = np.cos(np.deg2rad(ang))
-    #    horizontalalignment = {-1: "right", 1: "left"}[int(np.sign(x))]
-    #    connectionstyle = "angle,angleA=0,angleB={}".format(ang)
-    #    kw["arrowprops"].update({"connectionstyle": connectionstyle})
-    #    ax.annotate(viruses[i], xy=(x, y), xytext=(1.35 * np.sign(x), 1.4 * y),
-    #                horizontalalignment=horizontalalignment, **kw)
-
     plt.show()
 
 
-file = 'Outputs/virusCount1.csv'
+def pieFromFile(file):
+    #file = 'Outputs/virusCountSRR12464727_all.csv'
+    with open(file, 'r') as f:
+        labels = {}
+        lines = f.readlines()
+        for l in lines:
+            ls = l.strip().split(',')
+            labels[ls[0]] = int(ls[2])
 
-with open(file, 'r') as f:
-    labels = {}
-    lines = f.readlines()
-    for l in lines:
-        ls = l.strip().split(',')
-        print(ls[0], ls[1])
-        labels[ls[0]] = ls[1]
-
-pieChart(labels)
+    filteredL = filter(labels)
+    pieChart(filteredL)

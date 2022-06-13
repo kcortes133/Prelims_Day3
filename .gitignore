@@ -139,7 +139,7 @@ dmypy.json
 cython_debug/
 
 # Large Files
-Inputs
+Inputs*
 Outputs
 viralDB/genomes
 

@@ -2,7 +2,12 @@
 
 ## Goal
 Given a metagenomics sample give information about the composition of the viral community.
+
 ## Description
+This program takes fastq files as input and outputs information about 
+
+
+
 ## Install
 - numpy~=1.22.4
 - matplotlib~=3.5.2
@@ -11,6 +16,11 @@ Given a metagenomics sample give information about the composition of the viral 
 ## Usage
 ### Python
 ### Command Line
+unzip the viral genome database
+$ python .\main.py --unzip-viralDB=True
+
 
 ## Input
+- metagenomic fastq files
+
 ## Output
