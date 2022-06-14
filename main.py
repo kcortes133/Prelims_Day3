@@ -18,6 +18,7 @@ parser.add_argument('--align', metavar='align', type=bool, help='align all reads
                                                                 'NOT RECOMMENDED, especially for large files'
                                                                 ' only use if number of reads is small')
 parser.add_argument('--readsFile', metavar='readsF', type=str, default='Example/Inputs', help='fastq file of reads')
+parser.add_argument('--run', metavar='run', type=str, default='', help='run ID')
 parser.add_argument('--outputFile', metavar='outputF', type=str, default='Example/Outputs', help='output directory')
 parser.add_argument('--visualize', metavar='visualize', type=bool, default=False, help='Visualize viral community from file')
 parser.add_argument('--viralSampleFile', metavar='vsFile', type=str, default='', help='create figures for already made'
@@ -34,7 +35,6 @@ def main():
     #run = 'SRR12432009'
 
     # TODO: make small example input and output files
-    # TODO: add input and output arguments
 
     # unzip viral genome files
     # will do automatically if genomes file doesnt exist and
@@ -44,13 +44,8 @@ def main():
         os.makedirs('Outputs')
 
 
-    for x in os.listdir('viralDB/compressed'):
-        print(x)
-
-
     if not os.path.exists('viralDB/genomes'):
         os.makedirs('viralDB/genomes')
-        #       viralDB/compressed/viral.1.1.genomic.fna.gz
         vDir = 'viralDB/compressed/viral.'
         uvDir = 'viralDB/genomes/viral.'
         for i in range(1,5):
@@ -62,9 +57,9 @@ def main():
     s = time.time()
     if args.kBinning:
         kmers = database.getkmers(vGDB, args.kLen)
-        virusOutFile = 'Outputs/virusCount' + run +'_all.csv'
+        virusOutFile = 'Outputs/virusCount' + args.run +'_all.csv'
 
-        reads = dataExploration.getReads(testF)
+        reads = dataExploration.getReads(args.readsFile)
         reads = random.sample(reads, int(len(reads)/4))
         print(time.time() - s)
         top, totHits = kmerBinning.subsetReads(reads, args.kLen, kmers)
@@ -86,10 +81,10 @@ def main():
 
 
     if args.align:
-        reads = dataExploration.getReads(testF)
+        reads = dataExploration.getReads(args.readsFile)
         annotationDF = pd.DataFrame(np.zeros((len(reads), 4)), columns=['GlobalAlignment', 'GA_Score'])
-        annotationDF.to_csv(annotationFile)
-        annotationDF = pd.read_csv(annotationFile)
+        annotationDF.to_csv(args.outputFile)
+        annotationDF = pd.read_csv(args.outputFile)
         for i in range(15):
             randI = random.randint(25,len(reads))
             maxS = -1
@@ -102,7 +97,7 @@ def main():
             annotationDF.at[randI, 'Global_Alignment'] = match
             annotationDF.at[randI, 'GA_Score'] = maxS
 
-        annotationDF.to_csv(annotationFile, index=False)
+        annotationDF.to_csv(args.outputFile, index=False)
 
 
 main()

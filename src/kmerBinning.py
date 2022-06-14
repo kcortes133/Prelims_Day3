@@ -42,12 +42,12 @@ def subsetReads(reads, kLen, kmers):
     return top, totHits
 
 
-# @param top:
-# @param totHits:
-# @param reads:
-# @param vGDB:
-# @returns virusesFound:
-# @returns viralNames:
+# @param top: dict of reads with over 6000 matching kmers from virus genomes and their count
+# @param totHits: dict of reads and viruses with shared kmers and counts
+# @param reads: list of all reads in sample
+# @param vGDB: dictionary of virus IDs and names and theri genomic sequence
+# @returns virusesFound: dictionary of virus IDs and names and counts
+# @returns viralNames: dictionary of virus ID and corresponding name
 def getVirusMatches(top, totHits, reads, vGDB):
     # alignment for reads with most hits for viralGenomes they matched to
     virusesFound = {}

@@ -2,7 +2,7 @@
 # Date: June 8, 2022
 # Purpose: read in reads and viral genomes from files
 
-import os
+import os, random
 
 
 # get reads from file
@@ -12,9 +12,9 @@ def getReads(readF):
     reads = []
     next = False
 
+
     with open(readF, 'r') as f:
         lines = f.readlines()
-    print(len(lines))
 
     count = 0
     for line in lines:
@@ -25,7 +25,7 @@ def getReads(readF):
             count +=1
         if line.startswith('@'):
             next = True
-    print(len(reads))
+    print('Number of Reads from file: ',len(reads))
     return reads
 
 

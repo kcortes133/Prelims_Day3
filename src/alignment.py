@@ -5,7 +5,6 @@
 import numpy as np
 
 
-
 # mismatch penalty of -2
 # indel penalty of -4
 # match addition of +3

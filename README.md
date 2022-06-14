@@ -24,3 +24,5 @@ $ python .\main.py --unzip-viralDB=True
 - metagenomic fastq files
 
 ## Output
+- csv file with viral community information
+- pie chart of 10 viruses with highest count in sample
