@@ -19,7 +19,7 @@ def getkmers(vDB, kLen):
     kmers = {}
     for v in vDB:
         vG = vDB[v]
-        for i in range(kLen, len(vG) - kLen):
+        for i in range(len(vG) - kLen+1):
             k = vG[i:i+kLen]
             if k in kmers:
                 kmers[k].append(v)

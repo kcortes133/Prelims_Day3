@@ -1,15 +1,18 @@
 # Author: Katherina Cortes
 # Date: June 10, 2022
-# Purpose:
+# Purpose: alignment algorithms for strings,accounting for mismatches and indels
 
 import numpy as np
 
 
 
-# mismatch penalty of -1
+# mismatch penalty of -2
 # indel penalty of -4
-# match addition of +1
+# match addition of +3
 # align one sequence to another
+# @param vSeq:
+# @param refSeq:
+# @returns: highest score along
 def globalAlign(vSeq, refSeq):
     # match, mismatch, indel
     scorM = [3,-2, -4]
@@ -38,7 +41,7 @@ def globalAlign(vSeq, refSeq):
             else: match = scorM[1]
 
             alignM[i][j] = max(alignM[i-1][j]+scorM[2], alignM[i][j-1]+scorM[2], alignM[i-1][j-1] + match)
-    return max(alignM[-1][:].max(), alignM[:][-1].max())
+    return max(alignM[-1, :].max(), alignM[:, -1].max())
 
 # mismatch penalty of -1
 # indel penalty of -4
