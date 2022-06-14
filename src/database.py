@@ -5,10 +5,14 @@
 import gzip, shutil
 import pandas as pd
 from src import dataExploration
+import os
 
 
 
 def extract(zipF, unzipF):
+
+    for x in os.listdir(os.getcwd()):
+        print(x)
     with gzip.open(zipF, 'rb') as f_in:
         with open(unzipF, 'wb') as f_out:
             shutil.copyfileobj(f_in, f_out)

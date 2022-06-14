@@ -43,12 +43,19 @@ def main():
     if not os.path.exists('Outputs/'):
         os.makedirs('Outputs')
 
+
+    for x in os.listdir('viralDB/compressed'):
+        print(x)
+
+
     if not os.path.exists('viralDB/genomes'):
         os.makedirs('viralDB/genomes')
+        #       viralDB/compressed/viral.1.1.genomic.fna.gz
         vDir = 'viralDB/compressed/viral.'
+        uvDir = 'viralDB/genomes/viral.'
         for i in range(1,5):
-            vfile = vDir + str(i) + '.1.genomic.fna.gz'
-            ovFile = vDir + str(i) + '.genomic.fna'
+            vfile = vDir + str(i) + '.1.genomic .fna.gz'
+            ovFile = uvDir + str(i) + '.genomic.fna'
             database.extract(vfile, ovFile)
 
     vGDB = database.makeVDB()
