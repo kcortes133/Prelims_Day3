@@ -78,7 +78,6 @@ def main():
 
         print('Possible Viruses found: ', len(top))
         print('Total time:  ', time.time()-s)
-        # alignment for reads with most hits for viralGenomes they matched to
         viralHostsDB = database.getViralHosts()
 
         # write viral information to file

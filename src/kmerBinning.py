@@ -19,8 +19,6 @@ def subsetReads(reads, kLen, kmers):
     count = 0
     top = {}
     totHits = {}
-    interval = len(reads)/10
-    s = time.time()
     for r in reads:
         hits[count] = 0
         totHits[count] = {}

@@ -93,6 +93,3 @@ def count(file):
             c += int(ls[2])
     print(c)
     return c
-
-count('Outputs/virusCountSRR12464727_all.csv')
-count('Outputs/virusCountSRR12432009_all.csv')

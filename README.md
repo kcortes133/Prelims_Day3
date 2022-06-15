@@ -38,7 +38,7 @@ def main():
     if not os.path.exists('Outputs/'):
         os.makedirs('Outputs')
 
-
+    # unzip viral genome databaset
     if not os.path.exists('viralDB/genomes'):
         os.makedirs('viralDB/genomes')
         vDir = 'viralDB/compressed/viral.'
@@ -47,22 +47,27 @@ def main():
             vfile = vDir + str(i) + '.1.genomic .fna.gz'
             ovFile = uvDir + str(i) + '.genomic.fna'
             database.extract(vfile, ovFile)
-
+            
+    # make dictionary of viral database
     vGDB = database.makeVDB()
     s = time.time()
+    # get kmers from viral genomes
     kmers = database.getkmers(vGDB, kLen)
     virusOutFile = 'Outputs/virusCount' + run +'_all.csv'
 
+    # get reads from fastq file
     reads = dataExploration.getReads(readsFile)
+    # randomly subsample reads
     reads = random.sample(reads, int(len(reads)/4))
     print(time.time() - s)
+    # kmer matching
     top, totHits = kmerBinning.subsetReads(reads, kLen, kmers)
     print('Time to subset reads: ',time.time()-s)
+    # align reads to viral genomes
     virusesFound, viralNames = kmerBinning.getVirusMatches(top, totHits, reads, vGDB)
 
     print('Possible Viruses found: ', len(top))
     print('Total time:  ', time.time()-s)
-    # alignment for reads with most hits for viralGenomes they matched to
     viralHostsDB = database.getViralHosts()
 
     outFiles.writeViruses(virusOutFile, virusesFound, viralHostsDB, viralNames)
