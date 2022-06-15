@@ -8,7 +8,7 @@ cur_path=os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, cur_path+"/..")
 
 import unittest
-from src import plotGenerator, database, alignment, dataExploration, kmerBinning
+from src import  database, alignment, dataExploration, kmerBinning
 
 
 
@@ -18,6 +18,14 @@ class KmerBinningTests(unittest.TestCase):
         data = {'1': 'thecats', '2': 'thecatty'}
         kmers = database.getkmers(data, 5)
         self.assertEqual(kmers, {'theca': ['1', '2'], 'hecat': ['1', '2'], 'ecats': ['1'], 'ecatt': ['2'], 'catty': ['2']})
+
+    def testKmerMatching(self):
+        data = {'1': 'thecats', '2': 'thecatty'}
+        kmers = database.getkmers(data, 5)
+        reads = ['catcatcat', 'thecatisamenace']
+        top, totHits = kmerBinning.subsetReads(reads, 5, kmers)
+        self.assertEqual(totHits, {0:{}, 1:{'1':1, '2':1}})
+
 
 
 class AlignmentTest(unittest.TestCase):

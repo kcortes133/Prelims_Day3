@@ -22,7 +22,7 @@ def subsetReads(reads, kLen, kmers):
     for r in reads:
         hits[count] = 0
         totHits[count] = {}
-        for i in range(kLen, len(r) - kLen):
+        for i in range(len(r) - kLen+1):
             k = r[i: i + kLen]
             if k in kmers:
                 hits[count] += len(kmers[k])
