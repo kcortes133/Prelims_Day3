@@ -15,7 +15,7 @@ during alignment is what the read is labeled as.
 Information about the viral population is then output to a csv file. Pie charts can be made to look at the relative 
 composition of the sample, the viruses and virus host types represented. 
 
-Example files are a subset of the SRR12464727 read from NCBI. 
+Example files are a subset of the SRR12464727 run from NCBI. 
 
 ## Install
 - numpy~=1.22.4
@@ -74,6 +74,7 @@ main()
 ```
 ### Command Line
 unzip the viral genome database
+```
 $ python .\main.py 
 
 get viral community information from example dataset
@@ -81,7 +82,7 @@ $ python .\main.py --kBinning=True --readsFile='Example/Input/SRR12464727_exampl
 
 get visualizations for example dataset
 $ python .\main.py --visualize=True --viralSampleFile='Example/Output/virusCountSRR12464727_example_all.csv'         
-
+```
 
 ## Input
 - metagenomic fastq files
@@ -90,3 +91,9 @@ $ python .\main.py --visualize=True --viralSampleFile='Example/Output/virusCount
 - csv file with viral community information
 - virusID,virusName,virusCount,virusHost
 - pie chart of 9 viruses and hosts with highest count in sample
+
+Example pie charts for all of SRR12464727 reads, Example folder has results for subset of this data
+![hosts](https://user-images.githubusercontent.com/22487858/173917029-1eac17ff-42cb-49eb-a074-354481afd36d.png)
+
+![SRR12464727 pie chart](https://user-images.githubusercontent.com/22487858/173917086-afc0039c-347b-48c7-8fd5-3b6dea2a3fd1.png)
+
