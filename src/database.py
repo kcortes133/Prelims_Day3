@@ -4,7 +4,6 @@
 
 import gzip, shutil
 
-import matplotlib.pyplot as plt
 import pandas as pd
 from src import dataExploration
 

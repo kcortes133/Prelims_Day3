@@ -4,11 +4,11 @@
 
 import os, sys
 
-cur_path=os.path.abspath(os.path.dirname(__file__))
+cur_path = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, cur_path+"/..")
 
 import unittest
-from src import  database, alignment, dataExploration, kmerBinning
+from src import database, alignment, kmerBinning
 
 
 
@@ -45,6 +45,23 @@ class AlignmentTest(unittest.TestCase):
         score2 = alignment.globalAlign(s2, s1)
         self.assertEqual(score1, score2)
 
+    def testAlignSame(self):
+        s1 = 'cat'
+        s2 = 'cat'
+
+        score1 = alignment.globalAlign(s1, s2)
+        score2 = alignment.globalAlign(s2, s1)
+        self.assertEqual(score1, score2)
+
+
+    def testAlignSame(self):
+        s1 = 'ttt'
+        s2 = 'ggg'
+        s3 = 'ccc'
+
+        score1 = alignment.globalAlign(s1, s2)
+        score2 = alignment.globalAlign(s2, s3)
+        self.assertEqual(score1, score2)
 
 if __name__ == '__main__':
     unittest.main()

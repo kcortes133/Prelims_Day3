@@ -2,7 +2,7 @@
 # Date: June 8, 2022
 # Purpose: read in reads and viral genomes from files
 
-import os, random
+import os
 
 
 # get reads from file
@@ -79,19 +79,6 @@ def readstoFiles(readF, run, stepNum):
                 if line.startswith('@'):
                     next = True
     return
-
-
-def getReadsinFiles(file):
-    with open(file, 'r') as f:
-        lines = f.readlines()
-
-    reads = []
-    for l in lines:
-        reads.append(l.strip())
-    return reads
-
-
-
 
 
 # get reads from file
