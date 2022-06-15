@@ -26,7 +26,7 @@ def filter(labels, top):
 
 # @param labels: dict of viruses and counts
 # @displays: pie chart of viruses
-def pieChart(labels):
+def pieChart(labels, title):
     viruses = list(labels.keys())
     counts = list(labels.values())
 
@@ -39,14 +39,14 @@ def pieChart(labels):
               bbox_to_anchor=(1, 0, 0.5, 1))
 
     plt.setp(texts, size=8, weight="bold")
-    ax.set_title("Viruses present in sample")
+    ax.set_title(title)
     plt.show()
 
 
 # @params file: file name where virus count information is stored
 # @params run: name of run to add to title of chart
 # @displays: pie chart of viruses
-def pieFromFile(file, top):
+def pieFromFile(file, top, title):
     with open(file, 'r') as f:
         labels = {}
         lines = f.readlines()
@@ -55,7 +55,7 @@ def pieFromFile(file, top):
             labels[ls[0]] = int(ls[2])
 
     filteredL = filter(labels, top)
-    pieChart(filteredL)
+    pieChart(filteredL, title)
     return
 
 
@@ -64,7 +64,7 @@ def pieFromFile(file, top):
 # @params top: highest count hosts to display
 # @displays: pie chart of virus hosts and counts
 # makes a pie chart of viral hosts and relative counts
-def pieFromFile_Hosts(file, top):
+def pieFromFile_Hosts(file, top, title):
     # get hosts and counts from file
     with open(file, 'r') as f:
         labels = {}
@@ -72,11 +72,27 @@ def pieFromFile_Hosts(file, top):
         for l in lines:
             ls = l.strip().split(',')
             if ls[3] in labels:
-                labels[ls[3]] += ls[2]
+                labels[ls[3]] += int(ls[2])
             else:
-                labels[ls[3]] = ls[2]
+                labels[ls[3]] = int(ls[2])
 
     # only get highest count hosts
     filteredL = filter(labels, top)
-    pieChart(filteredL)
+    print(filteredL)
+    pieChart(filteredL, title)
     return
+
+
+def count(file):
+    with open(file, 'r') as f:
+        lines = f.readlines()
+        print(len(lines))
+        c = 0
+        for l in lines:
+            ls = l.strip().split(',')
+            c += int(ls[2])
+    print(c)
+    return c
+
+count('Outputs/virusCountSRR12464727_all.csv')
+count('Outputs/virusCountSRR12432009_all.csv')

@@ -1,15 +1,14 @@
 # Author: Katherina Cortes
 # Date: June 10, 2022
-# Purpose: get viral information except genome
+# Purpose: get viral information except genome from refSeq and ICTV databases
 
 import gzip, shutil
 import pandas as pd
 from src import dataExploration
 
 
-# @param zipF:
-# @param unzipF:
-# @
+# @param zipF: file path of file to unzip
+# @param unzipF: file path to save unzipped file
 def extract(zipF, unzipF):
     with gzip.open(zipF, 'rb') as f_in:
         with open(unzipF, 'wb') as f_out:
@@ -17,6 +16,8 @@ def extract(zipF, unzipF):
     return
 
 
+# @param vDB: dictionary of viral names and genomes
+# @param kLen: int of size of kmers
 def getkmers(vDB, kLen):
     kmers = {}
     for v in vDB:
@@ -29,19 +30,16 @@ def getkmers(vDB, kLen):
     return kmers
 
 
+# @returns: dictionary of viral IDs and corresponding host
 def getViralHosts():
     vFile = 'viralDB/taxid10239.nbr'
-    hostDB = pd.read_table(vFile, comment='#', delimiter='\t', names=["Representative","Neighbor","Host","Selected lineage","Taxonomy name","Segment name"])
+    hostDB = pd.read_table(vFile, comment='#', delimiter='\t', names=["Representative","Neighbor","Host",
+                                                                      "Selected lineage","Taxonomy name","Segment name"])
     hostDB = hostDB[['Representative', 'Host']]
     return dict(zip(hostDB['Representative'], hostDB['Host']))
 
 
-def getViralInfoDB():
-    vFile = 'viralDB/virushostdb.tsv'
-    vDB = pd.read_table(vFile, delimiter='\t')
-    return vDB
-
-
+# @returns: dictionary of viral IDs and genomes
 def makeVDB():
     viralDB1 = 'viralDB/genomes/viral.1.genomic.fna'
     viralDB2 = 'viralDB/genomes/viral.2.genomic.fna'

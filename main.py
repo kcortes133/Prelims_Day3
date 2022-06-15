@@ -1,6 +1,6 @@
 # Author: Katherina Cortes
 # Date: June 8, 2022
-# Purpose:
+# Purpose: get information about the viral community in a metagenomics sample
 
 
 import time, argparse, os
@@ -14,36 +14,28 @@ parser = argparse.ArgumentParser(description='')
 parser.add_argument('--kBinning', metavar='kBinning', type=bool, default=False, help='find reads likely to be'
                                                                                            ' viral and align to viral genomes')
 parser.add_argument('--kLen', metavar='kLen', type=int, default=10, help='length of k for binning')
-parser.add_argument('--align', metavar='align', type=bool, help='align all reads to all viral genomes,'
+parser.add_argument('--align', metavar='align', type=bool, default=False, help='align all reads to all viral genomes,'
                                                                 'NOT RECOMMENDED, especially for large files'
                                                                 ' only use if number of reads is small')
-parser.add_argument('--readsFile', metavar='readsF', type=str, default='Example/Inputs', help='fastq file of reads')
-parser.add_argument('--run', metavar='run', type=str, default='', help='run ID')
-parser.add_argument('--outputFile', metavar='outputF', type=str, default='Example/Outputs', help='output directory')
+parser.add_argument('--readsFile', metavar='readsF', type=str, default='Example/Input/SRR12464727_example.fastq', help='fastq file of reads')
+parser.add_argument('--run', metavar='run', type=str, default='SRR12464727_example', help='run ID')
+parser.add_argument('--randSubset', metavar='rSub', type=int, default=4, help='fraction of random reads to use for analysis')
 parser.add_argument('--visualize', metavar='visualize', type=bool, default=False, help='Visualize viral community from file')
-parser.add_argument('--viralSampleFile', metavar='vsFile', type=str, default='', help='create figures for already made'
-                                                                                      ' viral community characterization file')
+parser.add_argument('--viralSampleFile', metavar='vsFile', type=str, default='Example/Output/virusCountSRR12464727_example_all.csv',
+                    help='create figures for already made viral community characterization file')
 
 args = parser.parse_args()
 
 def main():
-    #annotationFile = 'Outputs/SRR12464727_Annotation.csv'
-    #testF = 'Inputs/SRR12464727.fastq'
-    #run = 'SRR12464727'
-    #annotationFile = 'Outputs/SRR12432009_Annotation.csv'
-    #testF = 'Inputs/SRR12432009.fastq'
-    #run = 'SRR12432009'
-
-    # TODO: make small example input and output files
-
     # unzip viral genome files
     # will do automatically if genomes file doesnt exist and
     # 14,858 viral genomes
     # unzip the viral genomes in compressed folder if not unzipped
+    # make file to write outputs to
     if not os.path.exists('Outputs/'):
         os.makedirs('Outputs')
 
-
+    # unzip viral genome database
     if not os.path.exists('viralDB/genomes'):
         os.makedirs('viralDB/genomes')
         vDir = 'viralDB/compressed/viral.'
@@ -53,17 +45,35 @@ def main():
             ovFile = uvDir + str(i) + '.genomic.fna'
             database.extract(vfile, ovFile)
 
+    # make viral genome data base into dictionary
     vGDB = database.makeVDB()
     s = time.time()
+
+    # get viral community information using kmers
     if args.kBinning:
+        # get kmers from viruses
         kmers = database.getkmers(vGDB, args.kLen)
         virusOutFile = 'Outputs/virusCount' + args.run +'_all.csv'
 
+        # get reads from file
         reads = dataExploration.getReads(args.readsFile)
-        reads = random.sample(reads, int(len(reads)/4))
-        print(time.time() - s)
-        top, totHits = kmerBinning.subsetReads(reads, args.kLen, kmers)
+        # randomly subset reads
+        reads = random.sample(reads, int(len(reads)/args.randSubset))
+        print(len(reads))
+        print('Tme to get reads from file: ',time.time() - s)
+        # get reads likely to be from viral genomes
+
+        top ={}
+        totHits ={}
+        stepS = int(len(reads)/10)
+        for i in range(10):
+            iterReads = reads[stepS*i:stepS*(1+i)-1]
+            topT, totHitsT = kmerBinning.subsetReads(iterReads, args.kLen, kmers)
+            print('Time to subset' + str(i+1) + '/10 of reads: ', time.time()-s)
+            top.update(topT)
+            totHits.update(totHitsT)
         print('Time to subset reads: ',time.time()-s)
+        # get viruses that have high alignment score to reads
         virusesFound, viralNames = kmerBinning.getVirusMatches(top, totHits, reads, vGDB)
 
         print('Possible Viruses found: ', len(top))
@@ -71,15 +81,19 @@ def main():
         # alignment for reads with most hits for viralGenomes they matched to
         viralHostsDB = database.getViralHosts()
 
+        # write viral information to file
         outFiles.writeViruses(virusOutFile, virusesFound, viralHostsDB, viralNames)
         plotGenerator.pieChart(virusesFound)
 
+    # make pie charts about virus count and host count
     if args.visualize:
-        plotGenerator.pieFromFile(args.viralSampleFile, 10)
-        plotGenerator.pieFromFile_Hosts(args.viralSampleFile, 10)
+        vtitle = 'Viruses in ' + args.run
+        htitle = 'Hosts in ' + args.run
+        plotGenerator.pieFromFile(args.viralSampleFile, 10, vtitle)
+        plotGenerator.pieFromFile_Hosts(args.viralSampleFile, 10, htitle)
 
-
-
+    # get viruses by aligning every read to every viral genome
+    # not recommended unless you have a small set of reads
     if args.align:
         reads = dataExploration.getReads(args.readsFile)
         annotationDF = pd.DataFrame(np.zeros((len(reads), 4)), columns=['GlobalAlignment', 'GA_Score'])

@@ -22,8 +22,6 @@ def subsetReads(reads, kLen, kmers):
     interval = len(reads)/10
     s = time.time()
     for r in reads:
-        if count % int(interval) == 0:
-            print(time.time()-s)
         hits[count] = 0
         totHits[count] = {}
         for i in range(kLen, len(r) - kLen):

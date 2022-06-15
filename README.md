@@ -4,9 +4,18 @@
 Given a metagenomics sample give information about the composition of the viral community.
 
 ## Description
-This program takes fastq files as input and outputs information about 
+This program takes fastq files as input and outputs information about the viral community in the sample. 
 
+Due to the large size of metagenomic samples, reads are limited to the first 150 bases and only 1/4 of randomly
+subsetted data was used. The reads are then selected for likelihood of viral origin using kmer matching.Kmer
+matching uses subsequences of the reads, of length k, and compares them to the subsequences of the viral genomes.
+Reads with a high number of matching kmers are then aligned to the viral genomes. The viral genome with the highest score
+during alignment is what the read is labeled as. 
 
+Information about the viral population is then output to a csv file. Pie charts can be made to look at the relative 
+composition of the sample, the viruses and virus host types represented. 
+
+Example files are a subset of the SRR12464727 read from NCBI. 
 
 ## Install
 - numpy~=1.22.4
@@ -15,9 +24,63 @@ This program takes fastq files as input and outputs information about
 
 ## Usage
 ### Python
+```python 
+def main():
+    readsF = 'Example/Input/SRR12464727.fastq'
+    run = 'SRR12464727'
+    
+    kLen = 10
+
+    # unzip viral genome files
+    # will do automatically if genomes file doesnt exist and
+    # 14,858 viral genomes
+    # unzip the viral genomes in compressed folder if not unzipped
+    if not os.path.exists('Outputs/'):
+        os.makedirs('Outputs')
+
+
+    if not os.path.exists('viralDB/genomes'):
+        os.makedirs('viralDB/genomes')
+        vDir = 'viralDB/compressed/viral.'
+        uvDir = 'viralDB/genomes/viral.'
+        for i in range(1,5):
+            vfile = vDir + str(i) + '.1.genomic .fna.gz'
+            ovFile = uvDir + str(i) + '.genomic.fna'
+            database.extract(vfile, ovFile)
+
+    vGDB = database.makeVDB()
+    s = time.time()
+    kmers = database.getkmers(vGDB, kLen)
+    virusOutFile = 'Outputs/virusCount' + run +'_all.csv'
+
+    reads = dataExploration.getReads(readsFile)
+    reads = random.sample(reads, int(len(reads)/4))
+    print(time.time() - s)
+    top, totHits = kmerBinning.subsetReads(reads, kLen, kmers)
+    print('Time to subset reads: ',time.time()-s)
+    virusesFound, viralNames = kmerBinning.getVirusMatches(top, totHits, reads, vGDB)
+
+    print('Possible Viruses found: ', len(top))
+    print('Total time:  ', time.time()-s)
+    # alignment for reads with most hits for viralGenomes they matched to
+    viralHostsDB = database.getViralHosts()
+
+    outFiles.writeViruses(virusOutFile, virusesFound, viralHostsDB, viralNames)
+    plotGenerator.pieFromFile(virusOutFile, 10)
+    plotGenerator.pieFromFile_Hosts(virusOutFile, 10)
+
+
+main()
+```
 ### Command Line
 unzip the viral genome database
-$ python .\main.py --unzip-viralDB=True
+$ python .\main.py 
+
+get viral community information from example dataset
+$ python .\main.py --kBinning=True --readsFile='Example/Input/SRR12464727_example.fastq' --run='SRR12464727_example' 
+
+get visualizations for example dataset
+$ python .\main.py --visualize=True --viralSampleFile='Example/Output/virusCountSRR12464727_example_all.csv'         
 
 
 ## Input
@@ -25,4 +88,5 @@ $ python .\main.py --unzip-viralDB=True
 
 ## Output
 - csv file with viral community information
-- pie chart of 10 viruses with highest count in sample
+- virusID,virusName,virusCount,virusHost
+- pie chart of 9 viruses and hosts with highest count in sample

@@ -12,7 +12,6 @@ def getReads(readF):
     reads = []
     next = False
 
-
     with open(readF, 'r') as f:
         lines = f.readlines()
 
