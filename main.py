@@ -63,8 +63,8 @@ def main():
         print('Tme to get reads from file: ',time.time() - s)
         # get reads likely to be from viral genomes
 
-        top ={}
-        totHits ={}
+        top = {}
+        totHits = {}
         stepS = int(len(reads)/10)
         for i in range(10):
             iterReads = reads[stepS*i:stepS*(1+i)-1]

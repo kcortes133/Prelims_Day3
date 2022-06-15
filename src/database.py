@@ -3,6 +3,8 @@
 # Purpose: get viral information except genome from refSeq and ICTV databases
 
 import gzip, shutil
+
+import matplotlib.pyplot as plt
 import pandas as pd
 from src import dataExploration
 
@@ -51,5 +53,3 @@ def makeVDB():
     vGDB.update(dataExploration.getViralDB(viralDB3))
     vGDB.update(dataExploration.getViralDB(viralDB4))
     return vGDB
-
-
