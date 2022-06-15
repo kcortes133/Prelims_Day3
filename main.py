@@ -82,7 +82,7 @@ def main():
 
         # write viral information to file
         outFiles.writeViruses(virusOutFile, virusesFound, viralHostsDB, viralNames)
-        plotGenerator.pieChart(virusesFound)
+        plotGenerator.pieChart(virusesFound, 'Viruses in' +args.run)
 
     # make pie charts about virus count and host count
     if args.visualize:
