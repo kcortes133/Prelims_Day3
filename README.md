@@ -80,16 +80,16 @@ main()
 ### Command Line
 unzip the viral genome database
 ```
-$ python .\main.py 
+$ python main.py 
 
 get viral community information from example dataset
-$ python .\main.py --kBinning=True --readsFile='Example/Input/SRR12464727_example.fastq' --run='SRR12464727_example' 
+$ python main.py --kBinning=True --readsFile='Example/Input/SRR12464727_example.fastq' --run='SRR12464727_example' 
 
 get viral community information from example dataset with different random sampling rate
-$ python .\main.py --kBinning=True --readsFile='Example/Input/SRR12464727_example.fastq' --run='SRR12464727_example' --randSubset=2
+$ python main.py --kBinning=True --readsFile='Example/Input/SRR12464727_example.fastq' --run='SRR12464727_example' --randSubset=2
 
 get visualizations for example dataset
-$ python .\main.py --visualize=True --viralSampleFile='Example/Output/virusCountSRR12464727_example_all.csv'         
+$ python main.py --visualize=True --viralSampleFile='Example/Output/virusCountSRR12464727_example_all.csv'         
 ```
 
 ## Input
